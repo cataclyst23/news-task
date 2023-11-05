@@ -9,6 +9,7 @@ http://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?appid=570&count=4&ma
 
 ### Build and run the server
 To start the application, run  `go run cmd/main.go`, or build using `go build cmd/main.go` then start the binary.
+The app can be accessed on http://localhost:8080 by default.
 
 ### Tests
 To execute all the unit tests, run  `go test ./...`.
