@@ -46,7 +46,7 @@ const (
 )
 
 var (
-	Templates = template.Must(template.ParseFiles(TemplateDir + "/display.html"))
+	Templates *template.Template
 	ValidPath = regexp.MustCompile("^/$")
 )
 

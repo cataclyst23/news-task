@@ -5,9 +5,17 @@ package main
 import (
 	"log"
 	"net/http"
+	"text/template"
 
 	client "github.com/cataclyst23/homework/pkg/client"
+	"github.com/cataclyst23/homework/pkg/utils"
 )
+
+const templateDir = "tmpl"
+
+func init() {
+	utils.Templates = template.Must(template.ParseFiles(templateDir + "/display.html"))
+}
 
 func main() {
 	// Serve CSS files

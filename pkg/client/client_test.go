@@ -5,9 +5,17 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"text/template"
 
+	"github.com/cataclyst23/homework/pkg/utils"
 	"golang.org/x/net/html"
 )
+
+const templateDir = "../../tmpl"
+
+func init() {
+	utils.Templates = template.Must(template.ParseFiles(templateDir + "/display.html"))
+}
 
 func TestResponseHandler(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(ResponseHandler))
