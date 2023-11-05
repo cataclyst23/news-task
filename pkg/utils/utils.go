@@ -33,13 +33,13 @@ type ResponseJson struct {
 }
 
 const (
-	TemplateDir = "tmpl"
+	TemplateDir = "../../tmpl"
 	DataDir     = "data"
 
 	Scheme     = "https"
 	ApiUrl     = "api.steampowered.com"
 	ApiUrlPath = "/ISteamNews/GetNewsForApp/v2/"
-	// Id of Counter Strike
+	// The ID of Counter Strike
 	AppId = "730"
 
 	PageTitle = "The Steam API response"
