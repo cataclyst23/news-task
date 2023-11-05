@@ -12,7 +12,7 @@ To start the application, run  `go run cmd/main.go`, or build using `go build cm
 The app can be accessed on http://localhost:8080 by default.
 
 ### Tests
-To execute all the unit tests, run  `go test ./...`.
+To execute all the unit tests, run  `go test -v ./...`.
 
 ### Sidenotes
 *Initially I went with the html/template package but ended up switching to the text/template one due to the Steam API response containing HTML-formatted content, which the html/template package escapes. This way the response can be displayed in its originally formatted way.*
