@@ -33,7 +33,7 @@ type ResponseJson struct {
 }
 
 const (
-	TemplateDir = "../../tmpl"
+	TemplateDir = "tmpl"
 	DataDir     = "data"
 
 	Scheme     = "https"
