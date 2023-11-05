@@ -1,97 +1,96 @@
-// Copyright 2010 The Go Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
 //go:build ignore
 
 package main
 
 import (
-	"html/template"
+	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
-	"os"
-	"regexp"
+	"net/url"
+
+	utils "github.com/cataclyst23/homework/pkg/utils"
 )
 
-type Page struct {
-	Title string
-	Body  []byte
-}
-
-const (
-	templateDir = "tmpl"
-	dataDir     = "data"
-)
-
-func (p *Page) save() error {
-	filename := p.Title + ".txt"
-	return os.WriteFile(dataDir+"/"+filename, p.Body, 0600)
-}
-
-func loadPage(title string) (*Page, error) {
-	filename := title + ".txt"
-	body, err := os.ReadFile(dataDir + "/" + filename)
-	if err != nil {
-		return nil, err
-	}
-	return &Page{Title: title, Body: body}, nil
-}
-
-func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
-	p, err := loadPage(title)
-	if err != nil {
-		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
-		return
-	}
-	renderTemplate(w, "view", p)
-}
-
-func editHandler(w http.ResponseWriter, r *http.Request, title string) {
-	p, err := loadPage(title)
-	if err != nil {
-		p = &Page{Title: title}
-	}
-	renderTemplate(w, "edit", p)
-}
-
-func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
-	body := r.FormValue("body")
-	p := &Page{Title: title, Body: []byte(body)}
-	err := p.save()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	http.Redirect(w, r, "/view/"+title, http.StatusFound)
-}
-
-var templates = template.Must(template.ParseFiles(templateDir+"/edit.html", templateDir+"/view.html"))
-
-func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	err := templates.ExecuteTemplate(w, tmpl+".html", p)
+func renderTemplate(w http.ResponseWriter, tmpl string, p *utils.Page) {
+	err := utils.Templates.ExecuteTemplate(w, tmpl+".html", p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
-
-var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		m := validPath.FindStringSubmatch(r.URL.Path)
+		m := utils.ValidPath.FindStringSubmatch(r.URL.Path)
 		if m == nil {
 			http.NotFound(w, r)
 			return
 		}
-		fn(w, r, m[2])
+		fn(w, r, m[0])
 	}
 }
 
+func responseHandler(w http.ResponseWriter, r *http.Request, title string) {
+
+	responseObject := &utils.ResponseJson{}
+
+	if err := json.Unmarshal(makeRequest(), responseObject); err != nil {
+		fmt.Printf("Error happened during JSON marshaling: %s\n", err.Error())
+	}
+
+	fmt.Println(utils.PrettyPrint(responseObject))
+
+	p := &utils.Page{
+		Title: utils.PageTitle,
+		Body:  responseObject,
+	}
+
+	renderTemplate(w, "display", p)
+}
+
+func makeRequest() []byte {
+	url := url.URL{}
+
+	url.Scheme = utils.Scheme
+	url.Host = utils.ApiUrl
+	url.Path = utils.ApiUrlPath
+
+	q := url.Query()
+	q.Add("appid", utils.AppId)
+
+	url.RawQuery = q.Encode()
+
+	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
+	if err != nil {
+		fmt.Printf("Error building the HTTP request: %s\n", err.Error())
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Printf("Error making the HTTP request: %s", err.Error())
+	}
+
+	if resp.StatusCode <= 200 && resp.StatusCode < 400 {
+		fmt.Printf("Response code: %d\n", resp.StatusCode)
+
+	}
+
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Could not read response body: %s\n", err)
+	}
+
+	return data
+}
+
 func main() {
-	http.HandleFunc("/view/", makeHandler(viewHandler))
-	http.HandleFunc("/edit/", makeHandler(editHandler))
-	http.HandleFunc("/save/", makeHandler(saveHandler))
+	fs := http.FileServer(http.Dir("assets"))
+	http.Handle("/assets/", http.StripPrefix("/assets", fs))
+
+	http.HandleFunc("/", makeHandler(responseHandler))
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
