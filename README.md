@@ -7,7 +7,7 @@
 > http://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?appid=570&count=4&maxlength=400&format=json
 
 #### Tech stack
-* Server/client functionality: Golang with `net/HTTP` and `html(text)/template` packages
+* Server/client functionality: Golang (v1.21.3) with `net/HTTP` and `html(text)/template` packages
 * CSS/JS Toolkit: [Bootstrap](https://getbootstrap.com/)
 * Unit tests: Go `testing` package
 * GitHub Actions workflow for building and running the tests when something gets pushed to `master`
