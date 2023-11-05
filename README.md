@@ -15,8 +15,8 @@ The app can be accessed on http://localhost:8080 by default.
 To execute all the unit tests, run  `go test ./...`.
 
 ### Sidenotes
-*Initially I went with the html/template package, but ended up switching to the text/template one due to the Steam API response containing HTML-formatted content, which the html/template package escapes. This way the response can be displayed in its originally formatted way.
+*Initially I went with the html/template package but ended up switching to the text/template one due to the Steam API response containing HTML-formatted content, which the html/template package escapes. This way the response can be displayed in its originally formatted way.*
 
 ### Possible next steps
-The number of unit ests could be extended with the use of `ginkgo` and `gomega` frameworks.
-The lists within the returned news-components could be parsed and displayed like actual list items using the tags in square brackets*
+The number of unit tests could be extended with the use of `ginkgo` and `gomega` frameworks.
+The lists within the returned news-components could be parsed and displayed like actual list items using the tags in square brackets.
